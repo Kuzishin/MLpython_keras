@@ -1,24 +1,34 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Устанавливаем уровень логирования TensorFlow, чтобы скрыть предупреждения и информационные сообщения, оставляя только ошибки
 
-import numpy as np
-import matplotlib.pyplot as plt
-from tensorflow import keras
-from tensorflow.keras.layers import Dense
+from keras.src.layers import Dense, Input  # Импортируем слои Dense и Input из Keras для построения нейронной сети
+import numpy as np  # Импортируем NumPy для работы с массивами данных
+import matplotlib.pyplot as plt  # Импортируем Matplotlib для построения графиков
+import keras  # Импортируем Keras для работы с нейронными сетями
 
-c = np.array([-40, -10, 0, 8, 15, 22, 38])
-f = np.array([-40, 14, 32, 46, 59, 72, 100])
+# Данные для обучения модели (температура в Цельсиях и Фаренгейтах)
+c = np.array([-40, -10, 0, 8, 15, 22, 38])  # Температура в Цельсиях
+f = np.array([-40, 14, 32, 46, 59, 72, 100])  # Температура в Фаренгейтах
 
-model = keras.Sequential()
-model.add(Dense(units=1, input_shape=(1,), activation='linear'))
-model.compile(loss='mean_squared_error', optimizer=keras.optimizers.Adam(0.1))
+# Создаем последовательную модель
+model = keras.Sequential()  # Инициализируем пустую последовательную модель, к которой будем добавлять слои
+model.add(Input(shape=(1,)))  # Определяем входной слой с одной переменной (температура в Цельсиях)
+model.add(Dense(units=1, activation='linear'))  # Добавляем полно связный (Dense) слой с одним нейроном и линейной активацией
 
-history = model.fit(c, f, epochs=500, verbose=0)
-print("Обучение завершено")
+# Компилируем модель
+model.compile(loss='mean_squared_error', optimizer=keras.optimizers.Adam(0.1))  # Используем функцию потерь MSE и оптимизатор Adam с шагом обучения 0.1
 
-print(model.predict([100]))
-print(model.get_weights())
+# Обучаем модель
+history = model.fit(c, f, epochs=500, verbose=0)  # Обучаем модель на данных c и f, проходя через данные 500 раз (эпох), без вывода информации о процессе
+print("Обучение завершено")  # Сообщаем об окончании обучения
 
-plt.plot(history.history['loss'])
-plt.grid(True)
-plt.show()
+# Прогнозируем значение для температуры 100°C
+print("Прогноз для 100°C:", model.predict(np.array([100])))  # Предсказываем значение температуры по Цельсию 100°C и выводим результат
+print("Весовые коэффициенты модели:", model.get_weights())  # Выводим весовые коэффициенты обученной модели
+
+# Строим график потерь
+plt.plot(history.history['loss'])  # График потерь на каждой эпохе
+plt.xlabel("Эпоха")  # Подпись оси X
+plt.ylabel("Потери")  # Подпись оси Y
+plt.grid(True)  # Включаем сетку на графике
+plt.show()  # Показываем график
